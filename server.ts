@@ -7,6 +7,9 @@ import helmet from 'helmet';
 import indexRoutes from './routes/index.routes';
 import userRoutes from './routes/user.routes';
 import authRoutes from './routes/auth.routes';
+import startJobs from './jobs/jobs';
+import createSeedData from './seed';
+
 
 const db = require('./models');
 
@@ -31,6 +34,12 @@ db.sequelize.authenticate().then(
   () => {
     console.log('Connected to DB');
     db.sequelize.sync();
+
+    if (!!process.env.SEED) {
+      createSeedData(db);
+    }
+    
+    startJobs();
   },
   (reason: any) => {
     console.error('Error connecting to DB', reason);
@@ -40,3 +49,4 @@ db.sequelize.authenticate().then(
 app.listen(3000, () => {
   console.log('listening on port 3000');
 });
+
