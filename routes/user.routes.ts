@@ -6,15 +6,15 @@ const router = express.Router();
 
 router
   .route("/api/users")
-  .get(authCtrl.verifyToken, userCtrl.list)
-  .post(authCtrl.verifyToken, userCtrl.create);
+  .get(authCtrl.authorize, authCtrl.hasAdminRole, userCtrl.list)
+  .post(authCtrl.authorize, authCtrl.hasAdminRole, userCtrl.create);
 
 router.param("userId", userCtrl.getUserById);
 
 router
   .route("/api/users/:userId")
-  .get(authCtrl.verifyToken, userCtrl.read)
-  .put(authCtrl.verifyToken, userCtrl.update)
-  .delete(authCtrl.verifyToken, userCtrl.remove);
+  .get(authCtrl.authorize, authCtrl.hasAdminRole, userCtrl.read)
+  .put(authCtrl.authorize, authCtrl.hasAdminRole, userCtrl.update)
+  .delete(authCtrl.authorize, authCtrl.hasAdminRole, userCtrl.remove);
 
 export default router;

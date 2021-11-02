@@ -1,9 +1,12 @@
 # AuthT
 This is an authentication API written in Typescript with Node.js, Express, MySQL and Sequelize.  The goal is to provide the following services.
-* CRUD operations for user management protected by JWT tokens and roles
+* CRUD operations for user management
+  * Require valid Bearer token for user API
+  * Only ADMIN can add/update/delete
 * Login operation that returns a JWT on successful login
 * Verify operation to get the UserID and role(s) associated with a JWT
 * Scheduled jobs that clean up expired data in the database
+* Use types throughout
 
 ## Requirements
 You will need Node.js and NPM to build and run this service. It was built with node 14.17 and npm 6.14.

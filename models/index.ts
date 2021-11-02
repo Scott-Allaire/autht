@@ -12,7 +12,9 @@ const Role = require("./role")(sequelize, Sequelize);
 const Token = require("./token")(sequelize, Sequelize);
 
 Role.hasMany(User);
+User.belongsTo(Role);
 User.hasMany(Token);
+Token.belongsTo(User);
 
 module.exports = {
   sequelize: sequelize,

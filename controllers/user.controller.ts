@@ -8,12 +8,28 @@ const model = {
   createdAt: null,
 };
 
+// get paginated list of users
 const list = async (req: express.Request, res: express.Response) => {
   const db = (<any>req).db;
-  const users = await db.User.findAll();
-  res.json(_.map(users, (user) => _.pick(user, _.keys(model))));
+
+  const pageNumber = +(req.query.page || 0);
+  const pageSize = +(req.query.pageSize || 20);
+
+  const page = await db.User.findAndCountAll({
+    limit: pageSize,
+    offset: pageSize * pageNumber,
+    order: ['username']
+  });
+  const users = _.map(page.rows, (user) => _.pick(user, _.keys(model)));
+  res.json({
+    total: page.count,
+    pageSize: +pageSize,
+    pageNumber: +pageNumber,
+    values: users,
+  });
 };
 
+// create a new user
 const create = async (req: express.Request, res: express.Response) => {
   const db = (<any>req).db;
   const user = await db.User.create({
@@ -23,35 +39,44 @@ const create = async (req: express.Request, res: express.Response) => {
   res.json(_.pick(user, _.keys(model)));
 };
 
+// update a user
 const update = async (req: express.Request, res: express.Response) => {
   const db = (<any>req).db;
+  const userId = (<any>req).user.id;
   const result: Array<number> = await db.User.update(
     {
       username: req.body.username,
       password: req.body.password,
     },
     {
-      where: { id: (<any>req).user.id },
+      where: { id: userId },
     }
   );
   res.json({ updated: result[0] });
 };
 
+// delete a user
 const remove = async (req: express.Request, res: express.Response) => {
   const db = (<any>req).db;
-  const result: number = await db.User.destroy(
-    {
-      where: { id: (<any>req).user.id },
-    }
-  );
+  const result: number = await db.User.destroy({
+    where: { id: (<any>req).user.id },
+  });
   res.json({ deleted: result });
 };
 
+// get a single user 
 const read = (req: express.Request, res: express.Response) => {
+  console.log()
   res.send((<any>req).user);
 };
 
-const getUserById = async (req: express.Request, res: express.Response, next: any, id: number) => {
+// get a user from the DB by Id
+const getUserById = async (
+  req: express.Request,
+  res: express.Response,
+  next: any,
+  id: number
+) => {
   const db = (<any>req).db;
   const user = await db.User.findByPk(id);
 
@@ -67,6 +92,7 @@ const getUserById = async (req: express.Request, res: express.Response, next: an
 };
 
 export default {
+  model,
   create,
   list,
   read,
